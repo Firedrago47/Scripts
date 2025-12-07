@@ -39,16 +39,19 @@ create_p(){
 
 	case "$typ" in
 		1)
-			cd "$PROJECT_DIR"
+			cd "$PROJECT_DIR" | exit 1
 			npx create-react-app "$pname"
+			path="$PROJECT_DIR/$pname"
 			;;
 		2)
-			cd "$PROJECT_DIR"
+			cd "$PROJECT_DIR" | exit 1
 			npx create-next-app "$pname"
+			path="$PROJECT_DIR/$pname"
 			;;
 		3)
-			cd "$PROJECT_DIR"
+			cd "$PROJECT_DIR" | exit 1
 			npx create-next-app "$pname" --typescript
+			path="$PROJECT_DIR/$pname"
 			;;
 		4)
 			mkdir -p "$path"
@@ -56,13 +59,15 @@ create_p(){
 			;;
 		*)
 			echo -e "${RED}Unknown Option:${RESET}$typ"
-			exit 0
+			exit 1
 			;;
 	esac
 
-	if command -v git >/dev/null; then
-        	(cd "$path" && git init >/dev/null)
-        	echo -e "${BLUE}Initialized a new Git repo.${RESET}"
+	if [[ ! -d "$path/.git" ]];then
+		if command -v git >/dev/null; then
+        		(cd "$path" && git init >/dev/null)
+        		echo -e "${BLUE}Initialized a new Git repo.${RESET}"
+		fi
    	fi
 	
 	echo -e "${GREEN}Project created at: $path${RESET}"
