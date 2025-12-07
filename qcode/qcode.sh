@@ -14,6 +14,60 @@ else
 	echo "Config file path missing or incorrect check that!!"
 fi
 
+create_p(){
+	local pname="$1"
+	local path="$PROJECT_DIR/$pname"
+
+	echo -e "${YELLOW}Project $pname does not exist${RESET}"
+	read -p "Create it?(y/n):" choice
+
+	if [[ "$choice" != "y" ]]; then
+		echo -e "${RED}Cancelled.${RESET}"
+		exit 1
+	fi
+
+	echo
+	echo "Which Project do you wanna Create?(react.js/next.js)"
+	echo " ---------------------------------------------------"
+	echo "| [1]) react.js					  |"
+	echo "| [2]) next.js					  |"
+	echo "| [3]) next.js(typescript)			  |"
+	echo "| [4]) plank					  |"
+	echo " ---------------------------------------------------"
+	read -p "select any of (1/2/3/4):" typ
+	echo
+
+	case "$typ" in
+		1)
+			cd "$PROJECT_DIR"
+			npx create-react-app "$pname"
+			;;
+		2)
+			cd "$PROJECT_DIR"
+			npx create-next-app "$pname"
+			;;
+		3)
+			cd "$PROJECT_DIR"
+			npx create-next-app "$pname" --typescript
+			;;
+		4)
+			mkdir -p "$path"
+			echo "# $pname" > "$path/README.md"
+			;;
+		*)
+			echo -e "${RED}Unknown Option:${RESET}$typ"
+			exit 0
+			;;
+	esac
+
+	if command -v git >/dev/null; then
+        	(cd "$path" && git init >/dev/null)
+        	echo -e "${BLUE}Initialized a new Git repo.${RESET}"
+   	fi
+	
+	echo -e "${GREEN}Project created at: $path${RESET}"
+}
+
 select_f(){
 	command -v fzf >/dev/null 2>&1 || {
 		echo -e "${RED}fzf is not installed!${RESET}"
@@ -47,6 +101,8 @@ show_help(){
 	echo "Options:"
 	echo "-p,--project <name>  Project name"
 	echo "-e,--editor <editor> Code Editors"
+	echo "-s,--select	   Select project folder"
+	echo "-c,--create <name>   Create Project"
 	echo "-l,--list            list files/folders"
 	echo "-h,--help		   show this help"
 	echo
@@ -77,7 +133,7 @@ open_project(){
 	local path="$PROJECT_DIR/$pname"
 	
 	if [[ ! -d "$path" ]]; then 
-		show_error "Project $pname does not exist in $PROJECT_DIR"
+		create_p "$pname"
 	fi
 
 	cd "$path" || show_error "couldn't enter the project directory"
@@ -114,6 +170,10 @@ while [[ "$#" -gt 0 ]] do
 			;;
 		-s|--select)
 			select_f
+			shift
+			;;
+		-c|--create)
+			create_p
 			shift
 			;;
 		-l|--list)
