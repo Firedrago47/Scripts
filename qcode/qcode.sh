@@ -16,10 +16,12 @@ fi
 
 create_p(){
 	local pname="$1"
+	local choice="$2"
 	local path="$PROJECT_DIR/$pname"
-
+	
 	echo -e "${YELLOW}Project $pname does not exist${RESET}"
-	read -p "Create it?(y/n):" choice
+	[[ -z "$choice" ]] && read -p "Create it?(y/n):" choice
+	
 
 	if [[ "$choice" != "y" ]]; then
 		echo -e "${RED}Cancelled.${RESET}"
@@ -39,17 +41,17 @@ create_p(){
 
 	case "$typ" in
 		1)
-			cd "$PROJECT_DIR" | exit 1
+			cd "$PROJECT_DIR" || exit 1
 			npx create-react-app "$pname"
 			path="$PROJECT_DIR/$pname"
 			;;
 		2)
-			cd "$PROJECT_DIR" | exit 1
+			cd "$PROJECT_DIR" || exit 1
 			npx create-next-app "$pname"
 			path="$PROJECT_DIR/$pname"
 			;;
 		3)
-			cd "$PROJECT_DIR" | exit 1
+			cd "$PROJECT_DIR" || exit 1
 			npx create-next-app "$pname" --typescript
 			path="$PROJECT_DIR/$pname"
 			;;
@@ -138,7 +140,11 @@ open_project(){
 	local path="$PROJECT_DIR/$pname"
 	
 	if [[ ! -d "$path" ]]; then 
-		create_p "$pname"
+		if [[ "$AUTO_CREATE" == true ]]; then
+			create_p "$pname" "y"
+		else
+			create_p "$pname"
+		fi
 	fi
 
 	cd "$path" || show_error "couldn't enter the project directory"
@@ -163,7 +169,7 @@ open_project(){
 PROJECT=""
 EDITOR=""
 
-while [[ "$#" -gt 0 ]] do
+while [[ "$#" -gt 0 ]]; do
 	case "$1" in 
 		-p|--project)
 			PROJECT="$2"
@@ -178,7 +184,7 @@ while [[ "$#" -gt 0 ]] do
 			shift
 			;;
 		-c|--create)
-			create_p
+			AUTO_CREATE=true
 			shift
 			;;
 		-l|--list)
