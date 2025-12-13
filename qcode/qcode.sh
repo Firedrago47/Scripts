@@ -163,6 +163,9 @@ open_project(){
 			;;
 	esac
 	echo -e "${GREEN}Project $pname opened Successfully in $editor ${RESET}"
+	cd ~
+	cd "$path"
+	exec $SHELL
 
 }
 
